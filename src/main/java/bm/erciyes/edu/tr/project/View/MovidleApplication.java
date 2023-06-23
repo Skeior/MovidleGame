@@ -6,12 +6,10 @@ import bm.erciyes.edu.tr.project.Model.Movie;
 import javafx.animation.FillTransition;
 import javafx.application.Application;
 import javafx.concurrent.Task;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
@@ -70,15 +68,15 @@ public class MovidleApplication extends Application {
 
         final VBox[] a = {new VBox()};
         a[0].setSpacing(10);
-        HBox bttx=new HBox();
+
         TextField tx = new TextField();
         tx.setPrefSize(500,25);
         tx.maxHeight(25);
         tx.maxWidth(500);
         tx.setOpacity(0.90);
+
         final boolean[] first = {true};
-        bttx.getChildren().add(tx);
-        bttx.setAlignment(Pos.CENTER);
+
 
 
 
@@ -99,8 +97,25 @@ public class MovidleApplication extends Application {
             }
         });
         suggestionsListView.setMaxSize(500,200);
-        VBox txs = new VBox(bttx,suggestionsListView);
-        txs.setAlignment(Pos.TOP_CENTER);
+
+
+        Slider volumeSlider = new Slider(0, 1, 0.5); // Minimum değer 0, maksimum değer 1, varsayılan değer 0.5
+
+        // Slider değeri değiştiğinde Label'ı güncelleme
+        volumeSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
+
+             mediaPlayerg.setVolume(newValue.doubleValue());
+        });
+
+        HBox rd=new HBox(volumeSlider);
+        rd.setAlignment(Pos.TOP_RIGHT);
+
+        VBox txs2 = new VBox(tx,suggestionsListView);
+        txs2.setAlignment(Pos.TOP_CENTER);
+
+        HBox txs=new HBox(txs2,rd);
+        txs.setAlignment(Pos.CENTER);
+       // txs.setSpacing(30);
 
         final int[] trycounter = {1};
 
@@ -115,28 +130,22 @@ public class MovidleApplication extends Application {
                         if (gamemode == 2 && selectedMovie.year.equals(randomMovie.year)) {
                             filterMovieListByYear(selectedMovie.year);
 
-
                         }
 
                         if (gamemode == 2 && selectedMovie.genre.equals(randomMovie.genre)) {
                             filterMovieListByGenre(selectedMovie.genre);
-
-
                         }
 
                         if (gamemode == 2 && selectedMovie.origin.equals(randomMovie.origin)) {
                             filterMovieListByOrigin(selectedMovie.origin);
-
                         }
 
                         if (gamemode == 2 && selectedMovie.director.equals(randomMovie.director)) {
                             filterMovieListByDirector(selectedMovie.director);
-
                         }
 
                         if (gamemode == 2 && selectedMovie.star.equals(randomMovie.star)) {
                             filterMovieListByStar(selectedMovie.star);
-
                         }
 
                         ImageView imgView2 = loadMovieImageAsync(selectedMovie.imdb_link);
@@ -342,10 +351,6 @@ public class MovidleApplication extends Application {
         loadingThread.start();
         return imageView;
     }
-
-
-
-
     public void startStage() {
         Pane intro = new Pane();
         Text introtext = new Text(20, 20, "Normal: It has been configured according to the requirements of the project.\n" +
