@@ -177,11 +177,11 @@ public class MovidleApplication extends Application {
                         if(selectedMovie.title.equals(randomMovie.title)){
                             mediaPlayerg.stop();
                             Pane pane = new Pane ();
-                            Text text1 = new Text (20 , 20 , "  Winner Winner Chicken Dinner");
+                            Text text1 = new Text (20 , 20 , "                                  You Won ");
                             text1 . setFont ( Font . font (" Courier ", FontWeight. BOLD ,  15));
                             text1.setTextAlignment(TextAlignment.CENTER);
-                            pane.getChildren().add(text1);
 
+                            pane.getChildren().add(text1);
                             String path = "src\\main\\resources\\As\\win.mp3";
                             Media media = new Media(new File(path).toURI().toString());
                             MediaPlayer mediaPlayer = new MediaPlayer(media);
@@ -196,7 +196,9 @@ public class MovidleApplication extends Application {
                             Button restart=new Button("Restart");
                             restart.setPrefSize(150, 30);
 
+
                             winpane.getChildren().addAll(squarewin,pane,restart);
+                            winpane.setAlignment(Pos.CENTER);
                             Scene winscene=new Scene(winpane,400,150);
                             Stage stagewin=new Stage();
                             stagewin.setScene(winscene);
@@ -231,15 +233,15 @@ public class MovidleApplication extends Application {
                         }
 
                     }
+
                     if(trycounter[0] ==6&&!selectedMovie.title.equals(randomMovie.title)){
                         Pane pane = new Pane ();
                         mediaPlayerg.pause();
                         Text text1 = new Text (20 , 20 , "You are out of guesses. You can start a new game or add more guessing attempts");
-
                         text1 . setFont ( Font . font (" Courier ", FontWeight. BOLD , 15));
                         text1.setWrappingWidth(350);
                         text1.setTextAlignment(TextAlignment.CENTER);
-                        pane . getChildren (). add ( text1 );
+                        pane . getChildren().add(text1);
 
 
                         Media media = new Media(new File("src\\main\\resources\\As\\lose.mp3").toURI().toString());
