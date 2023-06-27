@@ -6,7 +6,6 @@ import bm.erciyes.edu.tr.project.Model.Movie;
 import javafx.animation.FillTransition;
 import javafx.application.Application;
 import javafx.concurrent.Task;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -26,6 +25,8 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
 
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -37,6 +38,17 @@ public class MovidleApplication extends Application {
      Movie randomMovie;
     private ListView<String> suggestionsListView;
     public int gamemode=0;
+
+    public void playSoundAsync(String filePath) {
+        Thread soundThread = new Thread(() -> {
+            Media sound = new Media(new File(filePath).toURI().toString());
+            MediaPlayer mediaPlayer = new MediaPlayer(sound);
+            mediaPlayer.setVolume(0.04);
+            mediaPlayer.play();
+
+        });
+        soundThread.start();
+    }
 
     public void gameSection(int gamemode) throws Exception {
         randomMovie = MovieController.randomMovieSelector();
@@ -124,7 +136,9 @@ public class MovidleApplication extends Application {
             try {
                 String enteredText = tx.getText();
                 if(actionEvent.getCode()== KeyCode.ENTER){
+
                     Movie selectedMovie = MovieController.getMovie(enteredText);
+
                     if (selectedMovie != null&& trycounter[0] !=6 ) {
 
                         if (gamemode == 2 && selectedMovie.year.equals(randomMovie.year)) {
@@ -158,10 +172,12 @@ public class MovidleApplication extends Application {
 
                         trycounter[0]++;
                         if (first[0]){
-                            a[0].getChildren().add(paneDesign(randomMovie,"TITLE","YEAR","GENRE", "ORIGIN","DIRECTOR","STAR","RANK",first[0]));
+                            a[0].getChildren().add(paneDesign(randomMovie,selectedMovie,first[0]));
                             first[0] =false;
                         }
-                        a[0].getChildren().add(paneDesign(randomMovie, selectedMovie.title, selectedMovie.year, selectedMovie.genre, selectedMovie.origin, selectedMovie.director, selectedMovie.star,selectedMovie.no,false));
+
+                        a[0].getChildren().add(paneDesign(randomMovie,selectedMovie,false));
+                        //selected movie gönder .
                         VBox root = new VBox();
                         root.setSpacing(20);
                         root.getChildren().addAll(txs, a[0]);
@@ -182,11 +198,7 @@ public class MovidleApplication extends Application {
                             text1.setTextAlignment(TextAlignment.CENTER);
 
                             pane.getChildren().add(text1);
-                            String path = "src\\main\\resources\\As\\win.mp3";
-                            Media media = new Media(new File(path).toURI().toString());
-                            MediaPlayer mediaPlayer = new MediaPlayer(media);
-                            mediaPlayer.setVolume(0.04);
-                            mediaPlayer.setAutoPlay(true);
+                            playSoundAsync("src\\main\\resources\\As\\win.mp3");;
 
 
                             StackPane winpane = new StackPane();
@@ -243,11 +255,7 @@ public class MovidleApplication extends Application {
                         text1.setTextAlignment(TextAlignment.CENTER);
                         pane . getChildren().add(text1);
 
-
-                        Media media = new Media(new File("src\\main\\resources\\As\\lose.mp3").toURI().toString());
-                        MediaPlayer mediaPlayer = new MediaPlayer(media);
-                        mediaPlayer.setVolume(0.1);
-                        mediaPlayer.setAutoPlay(true);
+                        playSoundAsync("src\\main\\resources\\As\\lose.mp3");
 
 
                         StackPane losepane = new StackPane();
@@ -299,10 +307,17 @@ public class MovidleApplication extends Application {
                         secondchance.setOnMouseClicked(ActionEvent -> {
 
                             mediaPlayerg.play();
-                            Media media1 = new Media(new File("src\\main\\resources\\As\\heal.mp3").toURI().toString());
-                            MediaPlayer mediaPlayer1 = new MediaPlayer(media1);
-                            mediaPlayer1.setVolume(0.1);
-                            mediaPlayer1.setAutoPlay(true);
+                            Thread sesThread = new Thread(() -> {
+                                try {
+                                    // Ses dosyasını çal
+                                    playSoundAsync("src\\main\\resources\\As\\heal.mp3");
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            });
+                            sesThread.start();
+
+
 
                             stagelose.close();
                             try {
@@ -525,8 +540,9 @@ public class MovidleApplication extends Application {
         startStage();
     }
 
-    public HBox paneDesign(Movie randomMovie, String titlex, String yearx, String genrex, String originx, String directorx, String starx,String nox,Boolean a) {
+    public HBox paneDesign(Movie randomMovie, Movie selected,Boolean a) {
 
+        boolean b=false;
 
         StackPane pane = new StackPane();
         Rectangle square = new Rectangle(150, 100);
@@ -535,11 +551,8 @@ public class MovidleApplication extends Application {
         title.setWrappingWidth(150);
         title.setTextAlignment(TextAlignment.CENTER);
         pane.getChildren().addAll(square, title);
-        if (randomMovie.title.compareTo(titlex) == 0) {
-            Media media1 = new Media(new File("src\\main\\resources\\As\\green.wav").toURI().toString());
-            MediaPlayer mediaPlayer1 = new MediaPlayer(media1);
-            mediaPlayer1.setVolume(0.04);
-            mediaPlayer1.setAutoPlay(true);
+        if (randomMovie.title.compareTo(selected.title) == 0&&!a) {
+            b=true;
             FillTransition ft = new FillTransition(Duration.millis(500), square, Color.WHEAT, Color.GREEN);
             ft.setCycleCount(5);
             ft.setAutoReverse(true);
@@ -560,16 +573,13 @@ public class MovidleApplication extends Application {
         Text year = new Text();
         year.setFont(Font.font("Arial",FontWeight.BOLD, 20));
         pane1.getChildren().addAll(square1, year);
-        if (randomMovie.year.compareTo(yearx) == 0) {
-            Media media1 = new Media(new File("src\\main\\resources\\As\\green.wav").toURI().toString());
-            MediaPlayer mediaPlayer1 = new MediaPlayer(media1);
-            mediaPlayer1.setVolume(0.04);
-            mediaPlayer1.setAutoPlay(true);
+        if (randomMovie.year.compareTo(selected.year) == 0&&!a) {
+            b=true;
             FillTransition ft1 = new FillTransition(Duration.millis(500), square1, Color.WHEAT, Color.GREEN);
             ft1.setCycleCount(5);
             ft1.setAutoReverse(true);
             ft1.play();
-        } else if(!a&&(randomMovie.year.compareTo(yearx))>0) {
+        } else if(!a&&(randomMovie.year.compareTo(selected.year))>0) {
 
             String currentDir = System.getProperty("user.dir");
             String imagePath = currentDir + "\\src\\main\\resources\\As\\up.jpg";
@@ -584,7 +594,7 @@ public class MovidleApplication extends Application {
             pane1.getChildren().add(imgs);
 
         }
-        else if(!a&&(randomMovie.year.compareTo(yearx))<0) {
+        else if(!a&&(randomMovie.year.compareTo(selected.year))<0) {
 
             String currentDir = System.getProperty("user.dir");
             String imagePath = currentDir + "\\src\\main\\resources\\As\\Down.jpg";
@@ -604,11 +614,8 @@ public class MovidleApplication extends Application {
         Text genre = new Text();
         genre.setFont(Font.font("Arial",FontWeight.BOLD, 20));
         pane2.getChildren().addAll(square2, genre);
-        if (randomMovie.genre.compareTo(genrex) == 0) {
-            Media media1 = new Media(new File("src\\main\\resources\\As\\green.wav").toURI().toString());
-            MediaPlayer mediaPlayer1 = new MediaPlayer(media1);
-            mediaPlayer1.setVolume(0.04);
-            mediaPlayer1.setAutoPlay(true);
+        if (randomMovie.genre.compareTo(selected.genre) == 0&&!a) {
+            b=true;
             FillTransition ft2 = new FillTransition(Duration.millis(500), square2, Color.WHEAT, Color.GREEN);
             ft2.setCycleCount(5);
             ft2.setAutoReverse(true);
@@ -628,11 +635,8 @@ public class MovidleApplication extends Application {
         origin.setFont(Font.font("Arial",FontWeight.BOLD, 20));
         pane3.getChildren().addAll(square3, origin);
 
-        if (randomMovie.origin.compareTo(originx) == 0) {
-            Media media1 = new Media(new File("src\\main\\resources\\As\\green.wav").toURI().toString());
-            MediaPlayer mediaPlayer1 = new MediaPlayer(media1);
-            mediaPlayer1.setVolume(0.04);
-            mediaPlayer1.setAutoPlay(true);
+        if (randomMovie.origin.compareTo(selected.origin) == 0&&!a) {
+            b=true;
             FillTransition ft3 = new FillTransition(Duration.millis(500), square3, Color.WHEAT, Color.GREEN);
             ft3.setCycleCount(5);
             ft3.setAutoReverse(true);
@@ -655,11 +659,8 @@ public class MovidleApplication extends Application {
         director.setTextAlignment(TextAlignment.CENTER);
         pane4.getChildren().addAll(square4, director);
 
-        if (randomMovie.director.compareTo(directorx) == 0) {
-            Media media1 = new Media(new File("src\\main\\resources\\As\\green.wav").toURI().toString());
-            MediaPlayer mediaPlayer1 = new MediaPlayer(media1);
-            mediaPlayer1.setVolume(0.04);
-            mediaPlayer1.setAutoPlay(true);
+        if (randomMovie.director.compareTo(selected.director) == 0&&!a) {
+            b=true;
             FillTransition ft4 = new FillTransition(Duration.millis(500), square4, Color.WHEAT, Color.GREEN);
             ft4.setCycleCount(5);
             ft4.setAutoReverse(true);
@@ -682,11 +683,8 @@ public class MovidleApplication extends Application {
         star.setWrappingWidth(150);
         star.setTextAlignment(TextAlignment.CENTER);
         pane5.getChildren().addAll(square5, star);
-        if (randomMovie.star.compareTo(starx) == 0) {
-            Media media1 = new Media(new File("src\\main\\resources\\As\\green.wav").toURI().toString());
-            MediaPlayer mediaPlayer1 = new MediaPlayer(media1);
-            mediaPlayer1.setVolume(0.04);
-            mediaPlayer1.setAutoPlay(true);
+        if (randomMovie.star.compareTo(selected.star) == 0&&!a) {
+            b=true;
             FillTransition ft5 = new FillTransition(Duration.millis(500), square5, Color.WHEAT, Color.GREEN);
             ft5.setCycleCount(5);
             ft5.setAutoReverse(true);
@@ -706,20 +704,22 @@ public class MovidleApplication extends Application {
         no.setTextAlignment(TextAlignment.CENTER);
         pane6.getChildren().addAll(square6, no);
 
-        if (randomMovie.no.compareTo(nox) == 0) {
-            Media media1 = new Media(new File("src\\main\\resources\\As\\green.wav").toURI().toString());
-            MediaPlayer mediaPlayer1 = new MediaPlayer(media1);
-            mediaPlayer1.setVolume(0.04);
-            mediaPlayer1.setAutoPlay(true);
+        if (randomMovie.no.compareTo(selected.no) == 0&&!a) {
+            b=true;
+
             FillTransition ft6 = new FillTransition(Duration.millis(500), square6, Color.WHEAT, Color.GREEN);
             ft6.setCycleCount(5);
             ft6.setAutoReverse(true);
             ft6.play();
-        } else if (!a){
+        } else  if (!a){
             FillTransition ft6 = new FillTransition(Duration.millis(500), square6, Color.WHEAT, Color.DARKRED);
             ft6.setCycleCount(1);
             ft6.setAutoReverse(true);
             ft6.play();
+        }
+
+        if (b){
+            playSoundAsync("src\\main\\resources\\As\\green.wav");
         }
 
 
@@ -731,19 +731,26 @@ public class MovidleApplication extends Application {
         star.setFill(Color.WHITE);
         no.setFill(Color.WHITE);
 
-        title.setText(titlex);
-        year.setText(yearx);
-        genre.setText(genrex);
-        origin.setText(originx);
-        director.setText(directorx);
-        star.setText(starx);
-        no.setText(nox);
+        title.setText(selected.title);
+        year.setText(selected.year);
+        genre.setText(selected.genre);
+        origin.setText(selected.origin);
+        director.setText(selected.director);
+        star.setText(selected.star);
+        no.setText(selected.no);
 
 
         HBox texts = new HBox();
         texts.setAlignment(Pos.CENTER);
         if(a){
 
+            title.setText("TITLE");
+            year.setText("YEAR");
+            genre.setText("GENRE");
+            origin.setText("ORIGIN");
+            director.setText("DIRECTOR");
+            star.setText("STAR");
+            no.setText("NO");
             square.setWidth(150);
             square.setHeight(35);
             square1.setWidth(150);
