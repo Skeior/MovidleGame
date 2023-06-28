@@ -2,7 +2,7 @@ package bm.erciyes.edu.tr.project.Model;
 
 import java.util.Objects;
 
-public class Movie {
+public class MovidleModel {
     public String no;
      public String title;
     public String year;
@@ -14,7 +14,7 @@ public class Movie {
 
 
 
-    public Movie(String no, String title, String year, String genre, String origin, String director, String star, String imdb_link) {
+    public MovidleModel(String no, String title, String year, String genre, String origin, String director, String star, String imdb_link) {
         this.no = no;
         this.title = title;
         this.year = year;
@@ -23,9 +23,6 @@ public class Movie {
         this.director = director;
         this.star = star;
         this.imdb_link = imdb_link;
-    }
-    public Movie() {
-
     }
 
     @Override
@@ -50,15 +47,15 @@ public class Movie {
             return false;
         }
 
-        Movie movie = (Movie) obj;
-        return Objects.equals(no, movie.no) &&
-                Objects.equals(title, movie.title) &&
-                Objects.equals(year, movie.year) &&
-                Objects.equals(genre, movie.genre) &&
-                Objects.equals(origin, movie.origin) &&
-                Objects.equals(director, movie.director) &&
-                Objects.equals(star, movie.star) &&
-                Objects.equals(imdb_link, movie.imdb_link);
+        MovidleModel movidleModel = (MovidleModel) obj;
+        return Objects.equals(no, movidleModel.no) &&
+                Objects.equals(title, movidleModel.title) &&
+                Objects.equals(year, movidleModel.year) &&
+                Objects.equals(genre, movidleModel.genre) &&
+                Objects.equals(origin, movidleModel.origin) &&
+                Objects.equals(director, movidleModel.director) &&
+                Objects.equals(star, movidleModel.star) &&
+                Objects.equals(imdb_link, movidleModel.imdb_link);
     }
     @Override
     public int hashCode() {

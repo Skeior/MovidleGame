@@ -1,11 +1,10 @@
 package bm.erciyes.edu.tr.project.View;
 
 
-import bm.erciyes.edu.tr.project.Controller.MovieController;
-import bm.erciyes.edu.tr.project.Model.Movie;
+import bm.erciyes.edu.tr.project.Controller.MovidleController;
+import bm.erciyes.edu.tr.project.Model.MovidleModel;
 import javafx.animation.FillTransition;
 import javafx.application.Application;
-import javafx.concurrent.Task;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -25,17 +24,16 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
 
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
-public class MovidleApplication extends Application {
-     Movie randomMovie;
+public class MovidleView extends Application {
+    protected MovidleModel randomMovidleModel;
     private ListView<String> suggestionsListView;
     public int gamemode=0;
 
@@ -45,13 +43,19 @@ public class MovidleApplication extends Application {
             MediaPlayer mediaPlayer = new MediaPlayer(sound);
             mediaPlayer.setVolume(0.04);
             mediaPlayer.play();
-
         });
         soundThread.start();
     }
 
+    public ImageView loadMovieImageAsync(String imageUrl) {
+        ImageView imageView = new ImageView();
+        CompletableFuture.supplyAsync(() -> new Image(imageUrl))
+                .thenAccept(imageView::setImage);
+        return imageView;
+    }
+
     public void gameSection(int gamemode) throws Exception {
-        randomMovie = MovieController.randomMovieSelector();
+        randomMovidleModel = MovidleController.randomMovieSelector();
         System.out.println(gamemode);
         Stage stage=new Stage();
         Media game = new Media(new File("src\\main\\resources\\As\\game.mp3").toURI().toString());
@@ -137,32 +141,32 @@ public class MovidleApplication extends Application {
                 String enteredText = tx.getText();
                 if(actionEvent.getCode()== KeyCode.ENTER){
 
-                    Movie selectedMovie = MovieController.getMovie(enteredText);
+                    MovidleModel selectedMovidleModel = MovidleController.getMovie(enteredText);
 
-                    if (selectedMovie != null&& trycounter[0] !=6 ) {
+                    if (selectedMovidleModel != null&& trycounter[0] !=6 ) {
 
-                        if (gamemode == 2 && selectedMovie.year.equals(randomMovie.year)) {
-                            filterMovieListByYear(selectedMovie.year);
+                        if (gamemode == 2 && selectedMovidleModel.year.equals(randomMovidleModel.year)) {
+                            filterMovieListByYear(selectedMovidleModel.year);
 
                         }
 
-                        if (gamemode == 2 && selectedMovie.genre.equals(randomMovie.genre)) {
-                            filterMovieListByGenre(selectedMovie.genre);
+                        if (gamemode == 2 && selectedMovidleModel.genre.equals(randomMovidleModel.genre)) {
+                            filterMovieListByGenre(selectedMovidleModel.genre);
                         }
 
-                        if (gamemode == 2 && selectedMovie.origin.equals(randomMovie.origin)) {
-                            filterMovieListByOrigin(selectedMovie.origin);
+                        if (gamemode == 2 && selectedMovidleModel.origin.equals(randomMovidleModel.origin)) {
+                            filterMovieListByOrigin(selectedMovidleModel.origin);
                         }
 
-                        if (gamemode == 2 && selectedMovie.director.equals(randomMovie.director)) {
-                            filterMovieListByDirector(selectedMovie.director);
+                        if (gamemode == 2 && selectedMovidleModel.director.equals(randomMovidleModel.director)) {
+                            filterMovieListByDirector(selectedMovidleModel.director);
                         }
 
-                        if (gamemode == 2 && selectedMovie.star.equals(randomMovie.star)) {
-                            filterMovieListByStar(selectedMovie.star);
+                        if (gamemode == 2 && selectedMovidleModel.star.equals(randomMovidleModel.star)) {
+                            filterMovieListByStar(selectedMovidleModel.star);
                         }
 
-                        ImageView imgView2 = loadMovieImageAsync(selectedMovie.imdb_link);
+                        ImageView imgView2 = loadMovieImageAsync(selectedMovidleModel.imdb_link);
 
                         imgView2.setFitWidth(1920); // Set the fitWidth to the image's width
                         imgView2.setFitHeight(1080);
@@ -172,11 +176,11 @@ public class MovidleApplication extends Application {
 
                         trycounter[0]++;
                         if (first[0]){
-                            a[0].getChildren().add(paneDesign(randomMovie,selectedMovie,first[0]));
+                            a[0].getChildren().add(paneDesign(randomMovidleModel, selectedMovidleModel,first[0]));
                             first[0] =false;
                         }
 
-                        a[0].getChildren().add(paneDesign(randomMovie,selectedMovie,false));
+                        a[0].getChildren().add(paneDesign(randomMovidleModel, selectedMovidleModel,false));
                         //selected movie gönder .
                         VBox root = new VBox();
                         root.setSpacing(20);
@@ -190,7 +194,7 @@ public class MovidleApplication extends Application {
 
 
 
-                        if(selectedMovie.title.equals(randomMovie.title)){
+                        if(selectedMovidleModel.title.equals(randomMovidleModel.title)){
                             mediaPlayerg.stop();
                             Pane pane = new Pane ();
                             Text text1 = new Text (20 , 20 , "                                  You Won ");
@@ -227,7 +231,7 @@ public class MovidleApplication extends Application {
                                     first[0]=true;
                                     a[0].getChildren().clear();
                                     trycounter[0]=1;
-                                    randomMovie = MovieController.randomMovieSelector();
+                                    randomMovidleModel = MovidleController.randomMovieSelector();
                                 } catch (IOException e) {
                                     throw new RuntimeException(e);
                                 }
@@ -246,7 +250,7 @@ public class MovidleApplication extends Application {
 
                     }
 
-                    if(trycounter[0] ==6&&!selectedMovie.title.equals(randomMovie.title)){
+                    if(trycounter[0] ==6&&!selectedMovidleModel.title.equals(randomMovidleModel.title)){
                         Pane pane = new Pane ();
                         mediaPlayerg.pause();
                         Text text1 = new Text (20 , 20 , "You are out of guesses. You can start a new game or add more guessing attempts");
@@ -290,7 +294,7 @@ public class MovidleApplication extends Application {
                                 first[0]=true;
                                 a[0].getChildren().clear();
                                 trycounter[0]=1;
-                                randomMovie = MovieController.randomMovieSelector();
+                                randomMovidleModel = MovidleController.randomMovieSelector();
 
                             } catch (IOException e) {
                                 throw new RuntimeException(e);
@@ -345,29 +349,7 @@ public class MovidleApplication extends Application {
         stage.setTitle("Movidle");
         stage.show();
     }
-    private ImageView loadMovieImageAsync(String imageUrl) {
-        Task<Image> imageLoadingTask = new Task<>() {
-            @Override
-            protected Image call() throws Exception {
-                return new Image(imageUrl);
-            }
-        };
 
-        ImageView imageView=new ImageView();
-        imageLoadingTask.setOnSucceeded(event -> {
-            Image loadedImage = imageLoadingTask.getValue();
-            imageView.setImage(loadedImage);
-        });
-
-        imageLoadingTask.setOnFailed(event -> {
-            Throwable exception = imageLoadingTask.getException();
-        });
-
-        // Resim yükleme görevini başlat
-        Thread loadingThread = new Thread(imageLoadingTask);
-        loadingThread.start();
-        return imageView;
-    }
     public void startStage() {
         Pane intro = new Pane();
         Text introtext = new Text(20, 20, "Normal: It has been configured according to the requirements of the project.\n" +
@@ -468,7 +450,7 @@ public class MovidleApplication extends Application {
         suggestionsListView.getItems().clear();
         List<String> suggestions = new ArrayList<>();
         suggestions.clear();
-        for (String item : MovieController.titlelist) {
+        for (String item : MovidleController.titlelist) {
             if (item.toLowerCase().startsWith(userInput)) {
                 suggestions.remove(item);
                 suggestions.add(item);
@@ -482,7 +464,7 @@ public class MovidleApplication extends Application {
         List<String> suggestions2 = new ArrayList<>();
 
 
-        for (String item : MovieController.titlelist) {
+        for (String item : MovidleController.titlelist) {
                 suggestions2.remove(item);
                 suggestions2.add(item);
         }
@@ -491,18 +473,18 @@ public class MovidleApplication extends Application {
     }
 
     private void filterMovieListByYear(String year) {
-        for (Movie item : MovieController.movielist) {
+        for (MovidleModel item : MovidleController.movielist) {
             if (!item.year.equals(year)) {
-                MovieController.titlelist.remove(item.title);
+                MovidleController.titlelist.remove(item.title);
             }
         }
         updateSuggestions2();
     }
 
     private void filterMovieListByGenre(String genre) {
-        for (Movie item : MovieController.movielist) {
+        for (MovidleModel item : MovidleController.movielist) {
             if (!item.genre.equals(genre)) {
-                MovieController.titlelist.remove(item.title);
+                MovidleController.titlelist.remove(item.title);
             }
         }
 
@@ -510,27 +492,27 @@ public class MovidleApplication extends Application {
     }
 
     private void filterMovieListByOrigin(String origin) {
-        for (Movie item : MovieController.movielist) {
+        for (MovidleModel item : MovidleController.movielist) {
             if (!item.origin.equals(origin)) {
-                MovieController.titlelist.remove(item.title);
+                MovidleController.titlelist.remove(item.title);
             }
         }
         updateSuggestions2();
     }
 
     private void filterMovieListByDirector(String director) {
-        for (Movie item : MovieController.movielist) {
+        for (MovidleModel item : MovidleController.movielist) {
             if (!item.director.equals(director)) {
-                MovieController.titlelist.remove(item.title);
+                MovidleController.titlelist.remove(item.title);
             }
         }
         updateSuggestions2();
     }
 
     private void filterMovieListByStar(String star) {
-        for (Movie item : MovieController.movielist) {
+        for (MovidleModel item : MovidleController.movielist) {
             if (!item.star.equals(star)) {
-                MovieController.titlelist.remove(item.title);
+                MovidleController.titlelist.remove(item.title);
             }
         }
         updateSuggestions2();
@@ -540,7 +522,7 @@ public class MovidleApplication extends Application {
         startStage();
     }
 
-    public HBox paneDesign(Movie randomMovie, Movie selected,Boolean a) {
+    public HBox paneDesign(MovidleModel randomMovidleModel, MovidleModel selected, Boolean first) {
 
         boolean b=false;
 
@@ -551,14 +533,14 @@ public class MovidleApplication extends Application {
         title.setWrappingWidth(150);
         title.setTextAlignment(TextAlignment.CENTER);
         pane.getChildren().addAll(square, title);
-        if (randomMovie.title.compareTo(selected.title) == 0&&!a) {
+        if (randomMovidleModel.title.compareTo(selected.title) == 0&&!first) {
             b=true;
             FillTransition ft = new FillTransition(Duration.millis(500), square, Color.WHEAT, Color.GREEN);
             ft.setCycleCount(5);
             ft.setAutoReverse(true);
             ft.play();
 
-        } else if(!a) {
+        } else if(!first) {
 
             FillTransition ft = new FillTransition(Duration.millis(1000), square, Color.WHEAT, Color.DARKRED);
             ft.setCycleCount(1);
@@ -573,13 +555,13 @@ public class MovidleApplication extends Application {
         Text year = new Text();
         year.setFont(Font.font("Arial",FontWeight.BOLD, 20));
         pane1.getChildren().addAll(square1, year);
-        if (randomMovie.year.compareTo(selected.year) == 0&&!a) {
+        if (randomMovidleModel.year.compareTo(selected.year) == 0&&!first) {
             b=true;
             FillTransition ft1 = new FillTransition(Duration.millis(500), square1, Color.WHEAT, Color.GREEN);
             ft1.setCycleCount(5);
             ft1.setAutoReverse(true);
             ft1.play();
-        } else if(!a&&(randomMovie.year.compareTo(selected.year))>0) {
+        } else if(!first&&(randomMovidleModel.year.compareTo(selected.year))>0) {
 
             String currentDir = System.getProperty("user.dir");
             String imagePath = currentDir + "\\src\\main\\resources\\As\\up.jpg";
@@ -594,7 +576,7 @@ public class MovidleApplication extends Application {
             pane1.getChildren().add(imgs);
 
         }
-        else if(!a&&(randomMovie.year.compareTo(selected.year))<0) {
+        else if(!first&&(randomMovidleModel.year.compareTo(selected.year))<0) {
 
             String currentDir = System.getProperty("user.dir");
             String imagePath = currentDir + "\\src\\main\\resources\\As\\Down.jpg";
@@ -614,13 +596,13 @@ public class MovidleApplication extends Application {
         Text genre = new Text();
         genre.setFont(Font.font("Arial",FontWeight.BOLD, 20));
         pane2.getChildren().addAll(square2, genre);
-        if (randomMovie.genre.compareTo(selected.genre) == 0&&!a) {
+        if (randomMovidleModel.genre.compareTo(selected.genre) == 0&&!first) {
             b=true;
             FillTransition ft2 = new FillTransition(Duration.millis(500), square2, Color.WHEAT, Color.GREEN);
             ft2.setCycleCount(5);
             ft2.setAutoReverse(true);
             ft2.play();
-        } else if(!a) {
+        } else if(!first) {
             FillTransition ft2 = new FillTransition(Duration.millis(3000), square2, Color.WHEAT, Color.DARKRED);
             ft2.setCycleCount(1);
             ft2.setAutoReverse(true);
@@ -635,13 +617,13 @@ public class MovidleApplication extends Application {
         origin.setFont(Font.font("Arial",FontWeight.BOLD, 20));
         pane3.getChildren().addAll(square3, origin);
 
-        if (randomMovie.origin.compareTo(selected.origin) == 0&&!a) {
+        if (randomMovidleModel.origin.compareTo(selected.origin) == 0&&!first) {
             b=true;
             FillTransition ft3 = new FillTransition(Duration.millis(500), square3, Color.WHEAT, Color.GREEN);
             ft3.setCycleCount(5);
             ft3.setAutoReverse(true);
             ft3.play();
-        } else if(!a) {
+        } else if(!first) {
 
             FillTransition ft3 = new FillTransition(Duration.millis(4000), square3, Color.WHEAT, Color.DARKRED);
             ft3.setCycleCount(1);
@@ -659,13 +641,13 @@ public class MovidleApplication extends Application {
         director.setTextAlignment(TextAlignment.CENTER);
         pane4.getChildren().addAll(square4, director);
 
-        if (randomMovie.director.compareTo(selected.director) == 0&&!a) {
+        if (randomMovidleModel.director.compareTo(selected.director) == 0&&!first) {
             b=true;
             FillTransition ft4 = new FillTransition(Duration.millis(500), square4, Color.WHEAT, Color.GREEN);
             ft4.setCycleCount(5);
             ft4.setAutoReverse(true);
             ft4.play();
-        } else if(!a) {
+        } else if(!first) {
 
             FillTransition ft4 = new FillTransition(Duration.millis(4500), square4, Color.WHEAT, Color.DARKRED);
             ft4.setCycleCount(1);
@@ -683,13 +665,13 @@ public class MovidleApplication extends Application {
         star.setWrappingWidth(150);
         star.setTextAlignment(TextAlignment.CENTER);
         pane5.getChildren().addAll(square5, star);
-        if (randomMovie.star.compareTo(selected.star) == 0&&!a) {
+        if (randomMovidleModel.star.compareTo(selected.star) == 0&&!first) {
             b=true;
             FillTransition ft5 = new FillTransition(Duration.millis(500), square5, Color.WHEAT, Color.GREEN);
             ft5.setCycleCount(5);
             ft5.setAutoReverse(true);
             ft5.play();
-        } else if (!a){
+        } else if (!first){
             FillTransition ft5 = new FillTransition(Duration.millis(6000), square5, Color.WHEAT, Color.DARKRED);
             ft5.setCycleCount(1);
             ft5.setAutoReverse(true);
@@ -704,14 +686,14 @@ public class MovidleApplication extends Application {
         no.setTextAlignment(TextAlignment.CENTER);
         pane6.getChildren().addAll(square6, no);
 
-        if (randomMovie.no.compareTo(selected.no) == 0&&!a) {
+        if (randomMovidleModel.no.compareTo(selected.no) == 0&&!first) {
             b=true;
 
             FillTransition ft6 = new FillTransition(Duration.millis(500), square6, Color.WHEAT, Color.GREEN);
             ft6.setCycleCount(5);
             ft6.setAutoReverse(true);
             ft6.play();
-        } else  if (!a){
+        } else  if (!first){
             FillTransition ft6 = new FillTransition(Duration.millis(500), square6, Color.WHEAT, Color.DARKRED);
             ft6.setCycleCount(1);
             ft6.setAutoReverse(true);
@@ -742,7 +724,7 @@ public class MovidleApplication extends Application {
 
         HBox texts = new HBox();
         texts.setAlignment(Pos.CENTER);
-        if(a){
+        if(first){
 
             title.setText("TITLE");
             year.setText("YEAR");
